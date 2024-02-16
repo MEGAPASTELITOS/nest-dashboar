@@ -5,6 +5,7 @@ import { HealthModule } from "@core/health/health.module";
 import { LoggerModule } from "@core/logger/logger.module";
 
 import { CustomersModule } from "./customers/customers.module";
+import { InvoicesModule } from "./invoices/invoices.module";
 import { RevenueModule } from "./revenue/revenue.module";
 import { UsersModule } from "./users/users.module";
 
@@ -16,6 +17,7 @@ import { UsersModule } from "./users/users.module";
     UsersModule,
     RevenueModule,
     CustomersModule,
+    InvoicesModule,
   ],
 })
 export class AppModule {}
