@@ -25,6 +25,7 @@
     "unicorn/prevent-abbreviations": "off",
     "no-console": "warn",
     "node/no-missing-import": "off",
+    "@typescript-eslint/no-unsafe-call": "off",
     "node/no-unsupported-features/es-syntax": [
       "error",
       { "ignores": ["modules"] }
@@ -68,9 +69,16 @@
       "files": ["tests/**"],
       "plugins": ["jest"],
       "rules": {
+        "eol-last": ["error", "always"],
+        "@typescript-eslint/interface-name-prefix": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/unbound-method": "off",
         "jest/unbound-method": "error",
-        "jest/expect-expect": "off"
+        "jest/expect-expect": "off",
+       " @typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-unsafe-assignment": ["off"]
       }
     }
   ],

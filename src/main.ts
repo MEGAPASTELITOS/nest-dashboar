@@ -1,10 +1,11 @@
-import { Logger } from "@nestjs/common";
+import { Logger, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
+import { useContainer } from "class-validator";
 
 import { AppModule } from "./app.module";
 
@@ -13,7 +14,15 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
   );
-
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+  app.enableCors();
   const configService = app.get(ConfigService);
   const port = configService.get<string>("PORT", "3000");
 
