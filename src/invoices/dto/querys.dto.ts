@@ -11,4 +11,20 @@ export class Querys {
   @IsString()
   @IsOptional()
   date: string;
+
+  @IsString()
+  @IsOptional()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  email: string;
+
+  @IsNumberString()
+  @IsOptional()
+  skip: number | undefined;
+
+  @IsNumberString()
+  @IsOptional()
+  take: number | undefined;
 }

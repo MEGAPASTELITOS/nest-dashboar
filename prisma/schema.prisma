@@ -40,7 +40,7 @@ model Invoices {
   updatedAt DateTime @updatedAt
   deletedAt DateTime? 
 
-  amount Int
+  amount String
   status Status @default(PAID)
   date String
 

@@ -15,9 +15,38 @@ export class InvoicesService {
     private customersService: CustomersService,
   ) {}
 
-  async findAll() {
+  async findAll(skip?: number, take?: number) {
     const invoices = await this.prisma.invoices.findMany({
       where: { deletedAt: undefined },
+      select: {
+        customers: true,
+        amount: true,
+        createdAt: true,
+        date: true,
+        id: true,
+        updatedAt: true,
+        status: true,
+        customersId: true,
+        deletedAt: true,
+      },
+      skip: skip,
+      take: take,
+      orderBy: {
+        date: "asc",
+      },
+    });
+
+    return await this.formatReturInvoices(invoices);
+  }
+
+  async findByAllAmount(amount: string) {
+    const invoices = await this.prisma.invoices.findMany({
+      where: {
+        amount: {
+          contains: amount,
+        },
+        deletedAt: undefined,
+      },
       select: {
         customers: true,
         amount: true,
@@ -34,11 +63,14 @@ export class InvoicesService {
     return await this.formatReturInvoices(invoices);
   }
 
-  async findByAllAmount(amount: number) {
+  async findByAllNameCustomer(name: string) {
     const invoices = await this.prisma.invoices.findMany({
       where: {
-        amount: {
-          gt: amount,
+        customers: {
+          name: {
+            contains: name,
+            mode: "insensitive",
+          },
         },
         deletedAt: undefined,
       },
@@ -63,6 +95,33 @@ export class InvoicesService {
       where: {
         date: {
           equals: date,
+        },
+        deletedAt: undefined,
+      },
+      select: {
+        customers: true,
+        amount: true,
+        createdAt: true,
+        date: true,
+        id: true,
+        updatedAt: true,
+        status: true,
+        customersId: true,
+        deletedAt: true,
+      },
+    });
+
+    return await this.formatReturInvoices(invoices);
+  }
+
+  async findByAllEmailCustomer(email: string) {
+    const invoices = await this.prisma.invoices.findMany({
+      where: {
+        customers: {
+          email: {
+            contains: email,
+            mode: "insensitive",
+          },
         },
         deletedAt: undefined,
       },
@@ -213,6 +272,7 @@ export class InvoicesService {
               customers: {
                 image_url: invoice.customers.image_url,
                 email: invoice.customers.email,
+                name: invoice.customers.name,
               },
             };
           }),
@@ -227,6 +287,7 @@ export class InvoicesService {
           customers: {
             image_url: invoice.customers.image_url,
             email: invoice.customers.email,
+            name: invoice.customers.name,
           },
         };
   }

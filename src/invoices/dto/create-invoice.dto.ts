@@ -1,10 +1,9 @@
 import { Status } from "@prisma/client";
-import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsEnum, IsNotEmpty, IsNumberString, IsString } from "class-validator";
 
 export class CreateInvoiceDto {
-  @IsNumber()
-  @IsInt()
-  amount: number;
+  @IsNumberString()
+  amount: string;
   @IsEnum(Status)
   status: Status;
   @IsString()

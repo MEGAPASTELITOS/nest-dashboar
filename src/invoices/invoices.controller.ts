@@ -22,11 +22,35 @@ export class InvoicesController {
   @Get("invoices")
   async findAll(@Query() querys: Querys) {
     if (querys.amount)
-      return await this.invoicesService.findByAllAmount(+querys.amount);
+      return await this.invoicesService.findByAllAmount(querys.amount);
+
     if (querys.date)
       return await this.invoicesService.findByAllDate(querys.date);
+
     if (querys.status)
       return await this.invoicesService.findByAllStatus(querys.status);
+
+    if (querys.skip) {
+      return await this.invoicesService.findAll(Number(querys.skip));
+    }
+
+    if (querys.name)
+      return await this.invoicesService.findByAllNameCustomer(querys.name);
+
+    if (querys.email)
+      return await this.invoicesService.findByAllNameCustomer(querys.email);
+
+    if (querys.take) {
+      return await this.invoicesService.findAll(Number(querys.take));
+    }
+
+    if (querys.skip && querys.take) {
+      return await this.invoicesService.findAll(
+        Number(querys.skip),
+        Number(querys.take),
+      );
+    }
+
     return await this.invoicesService.findAll();
   }
 
