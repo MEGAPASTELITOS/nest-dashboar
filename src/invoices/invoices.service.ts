@@ -6,7 +6,11 @@ import { PrismaService } from "@src/core/prisma/prisma.service";
 import { CustomersService } from "../customers/customers.service";
 import { CreateInvoiceDto } from "./dto/create-invoice.dto";
 import { UpdateInvoiceDto } from "./dto/update-invoice.dto";
-import { InvoicesWithCustomers } from "./types/type";
+import {
+  InvoicesReturn,
+  InvoicesReturnData,
+  InvoicesWithCustomers,
+} from "./types/type";
 
 @Injectable()
 export class InvoicesService {
@@ -15,7 +19,7 @@ export class InvoicesService {
     private customersService: CustomersService,
   ) {}
 
-  async findAll(skip?: number, take?: number) {
+  async findAll(skip?: number, take?: number): Promise<InvoicesReturn> {
     const invoices = await this.prisma.invoices.findMany({
       where: { deletedAt: undefined },
       select: {
@@ -36,10 +40,21 @@ export class InvoicesService {
       },
     });
 
-    return await this.formatReturInvoices(invoices);
+    const pages = await this.prisma.invoices.count();
+
+    if (take) {
+      const data = await this.formatReturInvoices(invoices);
+      const totalPage = Math.ceil(pages / take);
+
+      return { data: data, filters: "none", length: pages, totalPage };
+    }
+
+    const data = await this.formatReturInvoices(invoices);
+
+    return { data, filters: "none", length: pages };
   }
 
-  async findByAllAmount(amount: string) {
+  async findByAllAmount(amount: string): Promise<InvoicesReturn> {
     const invoices = await this.prisma.invoices.findMany({
       where: {
         amount: {
@@ -60,10 +75,20 @@ export class InvoicesService {
       },
     });
 
-    return await this.formatReturInvoices(invoices);
+    const pages = await this.prisma.invoices.count({
+      where: {
+        amount: {
+          contains: amount,
+        },
+        deletedAt: undefined,
+      },
+    });
+    const data = await this.formatReturInvoices(invoices);
+
+    return { data, filters: "amount", length: pages };
   }
 
-  async findByAllNameCustomer(name: string) {
+  async findByAllNameCustomer(name: string): Promise<InvoicesReturn> {
     const invoices = await this.prisma.invoices.findMany({
       where: {
         customers: {
@@ -87,10 +112,23 @@ export class InvoicesService {
       },
     });
 
-    return await this.formatReturInvoices(invoices);
+    const pages = await this.prisma.invoices.count({
+      where: {
+        customers: {
+          name: {
+            contains: name,
+            mode: "insensitive",
+          },
+        },
+        deletedAt: undefined,
+      },
+    });
+    const data = await this.formatReturInvoices(invoices);
+
+    return { data, filters: "name", length: pages };
   }
 
-  async findByAllDate(date: string) {
+  async findByAllDate(date: string): Promise<InvoicesReturn> {
     const invoices = await this.prisma.invoices.findMany({
       where: {
         date: {
@@ -111,10 +149,20 @@ export class InvoicesService {
       },
     });
 
-    return await this.formatReturInvoices(invoices);
+    const pages = await this.prisma.invoices.count({
+      where: {
+        date: {
+          equals: date,
+        },
+        deletedAt: undefined,
+      },
+    });
+    const data = await this.formatReturInvoices(invoices);
+
+    return { data, filters: "date", length: pages };
   }
 
-  async findByAllEmailCustomer(email: string) {
+  async findByAllEmailCustomer(email: string): Promise<InvoicesReturn> {
     const invoices = await this.prisma.invoices.findMany({
       where: {
         customers: {
@@ -138,11 +186,24 @@ export class InvoicesService {
       },
     });
 
-    return await this.formatReturInvoices(invoices);
+    const pages = await this.prisma.invoices.count({
+      where: {
+        customers: {
+          email: {
+            contains: email,
+            mode: "insensitive",
+          },
+        },
+        deletedAt: undefined,
+      },
+    });
+    const data = await this.formatReturInvoices(invoices);
+
+    return { data, filters: "email", length: pages };
   }
 
-  async findByAllStatus(status: Status) {
-    const invoice = await this.prisma.invoices.findMany({
+  async findByAllStatus(status: Status): Promise<InvoicesReturn> {
+    const invoices = await this.prisma.invoices.findMany({
       where: {
         status: status,
         deletedAt: undefined,
@@ -160,10 +221,18 @@ export class InvoicesService {
       },
     });
 
-    return await this.formatReturInvoices(invoice);
+    const pages = await this.prisma.invoices.count({
+      where: {
+        status: status,
+        deletedAt: undefined,
+      },
+    });
+    const data = await this.formatReturInvoices(invoices);
+
+    return { data, filters: "status", length: pages };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<InvoicesReturn> {
     const invoice = await this.prisma.invoices.findUnique({
       where: { id: id },
       select: {
@@ -181,7 +250,9 @@ export class InvoicesService {
 
     if (!invoice) throw new NotFoundException("invoice by id not fount");
 
-    return await this.formatReturInvoices(invoice);
+    const data = await this.formatReturInvoices(invoice);
+
+    return { data, filters: "status", length: 1 };
   }
 
   async create(customerId: number, dto: CreateInvoiceDto) {
@@ -258,7 +329,7 @@ export class InvoicesService {
 
   private async formatReturInvoices(
     invoice: InvoicesWithCustomers | InvoicesWithCustomers[],
-  ) {
+  ): Promise<InvoicesReturnData | InvoicesReturnData[]> {
     return Array.isArray(invoice)
       ? Promise.all(
           invoice.map(invoice => {

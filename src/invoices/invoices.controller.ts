@@ -14,44 +14,46 @@ import { Params } from "./dto/params.dto";
 import { Querys } from "./dto/querys.dto";
 import { UpdateInvoiceDto } from "./dto/update-invoice.dto";
 import { InvoicesService } from "./invoices.service";
+import { InvoicesReturn } from "./types/type";
 
 @Controller()
 export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 
   @Get("invoices")
-  async findAll(@Query() querys: Querys) {
+  async findAll(@Query() querys: Querys): Promise<InvoicesReturn> {
     if (querys.amount)
-      return await this.invoicesService.findByAllAmount(querys.amount);
+      return this.invoicesService.findByAllAmount(querys.amount);
 
-    if (querys.date)
-      return await this.invoicesService.findByAllDate(querys.date);
+    if (querys.date) return this.invoicesService.findByAllDate(querys.date);
 
     if (querys.status)
-      return await this.invoicesService.findByAllStatus(querys.status);
+      return this.invoicesService.findByAllStatus(querys.status);
 
-    if (querys.skip) {
-      return await this.invoicesService.findAll(Number(querys.skip));
+    if (querys.name) {
+      return this.invoicesService.findByAllNameCustomer(querys.name);
     }
 
-    if (querys.name)
-      return await this.invoicesService.findByAllNameCustomer(querys.name);
-
-    if (querys.email)
-      return await this.invoicesService.findByAllNameCustomer(querys.email);
-
-    if (querys.take) {
-      return await this.invoicesService.findAll(Number(querys.take));
+    if (querys.email) {
+      return this.invoicesService.findByAllEmailCustomer(querys.email);
     }
 
     if (querys.skip && querys.take) {
-      return await this.invoicesService.findAll(
+      return this.invoicesService.findAll(
         Number(querys.skip),
         Number(querys.take),
       );
     }
 
-    return await this.invoicesService.findAll();
+    if (querys.skip) {
+      return this.invoicesService.findAll(Number(querys.skip));
+    }
+
+    if (querys.take) {
+      return this.invoicesService.findAll(Number(querys.take));
+    }
+
+    return this.invoicesService.findAll();
   }
 
   @Get("invoices/:id")

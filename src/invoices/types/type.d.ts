@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, Status } from "@prisma/client";
 
 export type InvoicesWithCustomers = Prisma.InvoicesGetPayload<{
   select: {
@@ -13,3 +13,24 @@ export type InvoicesWithCustomers = Prisma.InvoicesGetPayload<{
     deletedAt: true;
   };
 }>;
+
+export interface InvoicesReturn {
+  data: InvoicesReturnData | InvoicesReturnData[];
+  length: number;
+  totalPage?: number;
+  filters: string;
+}
+
+export interface InvoicesReturnData {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  amount: string;
+  status: Status;
+  date: string;
+  customers: {
+    image_url: string;
+    email: string;
+    name: string;
+  };
+}
