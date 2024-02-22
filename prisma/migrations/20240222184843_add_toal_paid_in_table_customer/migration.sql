@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Invoices" ADD COLUMN     "totalPaid" DOUBLE PRECISION NOT NULL DEFAULT 0;

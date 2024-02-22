@@ -12,13 +12,55 @@ export class CustomersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll() {
-    const customers = await this.prisma.customers.findMany({
-      where: {
-        deletedAt: undefined,
+    const result = await this.prisma.customers.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image_url: true,
+        invoices: {
+          select: {
+            id: true,
+            amount: true,
+            status: true,
+          },
+        },
       },
     });
 
-    return await this.FormatReturCustomers(customers);
+    return result.map(customer => {
+      const total_invoices = customer.invoices.length;
+      const total_pending = customer.invoices.reduce(
+        (sum, invoice) =>
+          invoice.status === "PENDING"
+            ? sum + Number.parseFloat(invoice.amount)
+            : sum,
+        0,
+      );
+      const total_paid = customer.invoices.reduce(
+        (sum, invoice) =>
+          invoice.status === "PAID"
+            ? sum + Number.parseFloat(invoice.amount)
+            : sum,
+        0,
+      );
+
+      const { invoices, ...customerWithoutInvoices } = customer;
+
+      return {
+        ...customerWithoutInvoices,
+        total_invoices,
+        total_pending,
+        total_paid,
+      };
+    });
+  }
+
+  private formatCurrency(amount: number) {
+    return (amount / 100).toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
   }
 
   async findAllByEmail(email: string) {

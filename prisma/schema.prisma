@@ -30,6 +30,7 @@ model Customers{
   name String 
   email String @unique
   image_url String
+  totalPaid Float 
 
   invoices Invoices[]
 }

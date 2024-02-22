@@ -76,6 +76,8 @@
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/unbound-method": "off",
         "jest/unbound-method": "error",
+        "unicorn/no-array-reduce":"off",
+        "@typescript-eslint/no-unused-vars":"off",
         "jest/expect-expect": "off",
        " @typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-unsafe-assignment": ["off"]
